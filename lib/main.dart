@@ -55,7 +55,7 @@ class _PlasticClassifierScreenState extends State<PlasticClassifierScreen> {
 
     setState(() {
       _isLoading = true;
-      _responseText = '서버에서 플라스틱 종류를 분석 중입니다...';
+      _responseText = '서버에서 쓰레기 종류를 분석 중입니다...';
     });
 
     // 💡 환경별 엔드포인트 주소 분기 처리
@@ -117,7 +117,7 @@ class _PlasticClassifierScreenState extends State<PlasticClassifierScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('쓰레기 재질 분류기'),
+        title: const Text('쓰레기 분류기'),
         centerTitle: true,
       ),
       body: Padding(
@@ -146,7 +146,7 @@ class _PlasticClassifierScreenState extends State<PlasticClassifierScreen> {
                   children: [
                     Icon(Icons.image, size: 50, color: Colors.grey),
                     SizedBox(height: 8),
-                    Text('분석할 플라스틱 사진을 등록해 주세요.'),
+                    Text('분석할 쓰레기 사진을 등록해 주세요.'),
                   ],
                 ),
               ),
