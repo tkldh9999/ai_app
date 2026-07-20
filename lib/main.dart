@@ -1,6 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
-import 'package:flutter/foundation.dart'; // kIsWeb 사용을 위해 임포트
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:image_picker/image_picker.dart';
@@ -30,14 +30,12 @@ class PlasticClassifierScreen extends StatefulWidget {
 }
 
 class _PlasticClassifierScreenState extends State<PlasticClassifierScreen> {
-  // 💡 중요: dart:io의 File 대신 크로스플랫폼을 지원하는 XFile 객체를 사용합니다.
   XFile? _pickedFile;
   String _responseText = '사진을 선택하고 서버에 예측을 요청하세요.';
   bool _isLoading = false;
 
   final ImagePicker _picker = ImagePicker();
 
-  // 1. 갤러리에서 이미지 가져오기 (웹/안드로이드 공용)
   Future<void> _pickImage() async {
     final XFile? image = await _picker.pickImage(source: ImageSource.gallery);
 
@@ -49,7 +47,6 @@ class _PlasticClassifierScreenState extends State<PlasticClassifierScreen> {
     }
   }
 
-  // 2. 웹 & 안드로이드 통합형 서버 전송 로직
   Future<void> _uploadAndPredict() async {
     if (_pickedFile == null) return;
 
@@ -58,15 +55,13 @@ class _PlasticClassifierScreenState extends State<PlasticClassifierScreen> {
       _responseText = '서버에서 쓰레기 종류를 분석 중입니다...';
     });
 
-    // 💡 환경별 엔드포인트 주소 분기 처리
     late Uri url = Uri.parse('http://ubtldhserver.kro.kr:8080/api/predict');
 
     try {
       var request = http.MultipartRequest('POST', url);
 
-      // 💡 [핵심] 플랫폼에 따른 파일 전송 방식 다변화
       if (kIsWeb) {
-        // 웹: 파일 경로가 존재하지 않으므로 바이트 데이터를 읽어와 직접 첨부
+        // 파일 경로가 존재하지 않으므로 바이트 데이터를 읽어와 직접 첨부
         Uint8List imageBytes = await _pickedFile!.readAsBytes();
         request.files.add(
           http.MultipartFile.fromBytes(
@@ -76,7 +71,6 @@ class _PlasticClassifierScreenState extends State<PlasticClassifierScreen> {
           ),
         );
       } else {
-        // 안드로이드: 로컬 스토리지에 저장된 실제 경로(Path)를 이용해 첨부
         request.files.add(
             await http.MultipartFile.fromPath('image', _pickedFile!.path)
         );
@@ -124,7 +118,6 @@ class _PlasticClassifierScreenState extends State<PlasticClassifierScreen> {
         padding: const EdgeInsets.all(16.0),
         child: Column(
           children: [
-            // [상단] 플랫폼 호환 이미지 렌더링 영역
             Container(
               height: 280,
               width: double.infinity,
@@ -137,8 +130,8 @@ class _PlasticClassifierScreenState extends State<PlasticClassifierScreen> {
                   ? ClipRRect(
                 borderRadius: BorderRadius.circular(11),
                 child: kIsWeb
-                    ? Image.network(_pickedFile!.path, fit: BoxFit.cover) // 웹용 렌더링 방식 (Blob URL 가리킴)
-                    : Image.file(File(_pickedFile!.path), fit: BoxFit.cover), // 안드로이드용 렌더링 방식
+                    ? Image.network(_pickedFile!.path, fit: BoxFit.cover) // 웹용 렌더링
+                    : Image.file(File(_pickedFile!.path), fit: BoxFit.cover), // 안드로이드용 렌더링
               )
                   : const Center(
                 child: Column(
@@ -153,7 +146,6 @@ class _PlasticClassifierScreenState extends State<PlasticClassifierScreen> {
             ),
             const SizedBox(height: 20),
 
-            // [중간] 결과 메시지 출력 영역
             Expanded(
               child: Container(
                 width: double.infinity,
@@ -173,7 +165,6 @@ class _PlasticClassifierScreenState extends State<PlasticClassifierScreen> {
             ),
             const SizedBox(height: 20),
 
-            // [하단] 버튼 컨트롤 영역
             _isLoading
                 ? const CircularProgressIndicator()
                 : Row(
